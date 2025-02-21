@@ -4,7 +4,7 @@ import { param} from "express-validator";
 const items_router = Router();
 
 //for all routers
-//query parameters int limit ,enum sort = {"most_saled" , "most_ordered" , "price"} , enum sort_type ={"asc" , "dsc"}
+//query parameters int limit ,enum sort = {"most_saled" , "most_ordered" , "price"} 
 
 //get all products
 items_router.get('/',items_controller.get_items); // done
@@ -17,7 +17,7 @@ items_router.get('/id/:item', param('item').notEmpty().escape(),items_controller
 
 //get search for items 
 //query parameter search (reg exp)
-items_router.get('/search',items_controller.search_item)
+items_router.get('/search',items_controller.search_item)//done
 
 //get products for a category
 items_router.get('/category/:category' , param('category').notEmpty().escape() ,items_controller.get_categorized_items);//done

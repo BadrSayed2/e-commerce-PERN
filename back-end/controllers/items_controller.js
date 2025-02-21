@@ -5,17 +5,19 @@ const db = new PrismaClient();
 const items_controller = {};
 
 items_controller.get_items = async (req , res)=>{
-    const { offset , limit , sort} = req.query;
-    const items = [];
-
+    let { offset , limit , sort} = req.query;
+    let items = [];
+    // console.log({offset , limit})
+    offset = parseInt(offset);
+    limit = parseInt(limit);
     try{
-
+        // console.log("we reached here")
         items = await db.item.findMany({ 
             orderBy : [( (sort == "most_saled") ? {sales_number : "desc"} : 
                 ( (sort == "most_ordered")? {order_number : "desc"} : 
                 ( (sort == "price")? {price : "asc"} : {id : "asc" })) )], 
-            skip : (offset??  0) ,
-            take : (limit?? 10) ,
+            take : (limit? limit : 10) ,
+            skip : (offset? limit :  0) ,
             omit : {sales_number : true , order_number : true , description : true ,quantity : true , category_id : true},
             include : {discounts : true , category : true }    
         });
@@ -30,16 +32,20 @@ items_controller.get_items = async (req , res)=>{
 }
 
 items_controller.get_discounted_items = async (req , res) =>{
-    const { offset ,limit , sort} = req.query;
-    const items = [];
+    let { offset , limit , sort} = req.query;
+    let items = [];
+    // console.log({offset , limit})
+    offset = parseInt(offset);
+    limit = parseInt(limit);
     try{
+        
         items = await db.item.findMany({ 
             where : {discounts : {isNot : null} } ,
             orderBy : [( (sort == "most_saled") ? {sales_number : "desc"} : 
                 ( (sort == "most_ordered")? {order_number : "desc"} : 
                 ( (sort == "price")? {price : "asc"} : {id : "asc" })) )], 
-            skip : (offset??  0) ,
-            take : (limit?? 10) ,
+            take : (limit? limit : 10) ,
+            skip : (offset? limit :  0) ,
             omit : {sales_number : true , order_number : true , description : true ,quantity : true , category_id : true},
             include : {discounts : true , category : true }    
         });
@@ -52,11 +58,11 @@ items_controller.get_discounted_items = async (req , res) =>{
 }
 
 items_controller.get_item = async (req , res)=>{
-    const {item} = req.params;
-    
+    const item = parseInt(req.params.item);
+    // console.log(item);
     try{
         const fetched_item = await  db.item.findFirstOrThrow({
-        where : {id : +item} ,
+        where : {id : item} ,
         omit : {sales_number : true , order_number : true } ,
         include :  {category : true , discounts : true} });
 
@@ -68,19 +74,22 @@ items_controller.get_item = async (req , res)=>{
 }
 
 items_controller.get_categorized_items = async (req , res)=>{
-    const { offset ,limit , sort} = req.query;
-    const {category} = req.params;
-    const items = [];
+    let { offset , limit , sort} = req.query;
+    let items = [];
+    let category_id = parseInt(req.params.category);
+    // console.log({offset , limit})
+    offset = parseInt(offset);
+    limit = parseInt(limit);
 
     try{
 
         items = await db.item.findMany({ 
-            where : {category_id : +category } ,
+            where : {category_id } ,
             orderBy : [( (sort == "most_saled") ? {sales_number : "desc"} : 
                 ( (sort == "most_ordered")? {order_number : "desc"} : 
                 ( (sort == "price")? {price : "asc"} : {id : "asc" })) )], 
-            skip : (offset??  0) ,
-            take : (limit?? 10) ,
+            take : (limit? limit : 10) ,
+            skip : (offset? limit :  0) ,
             omit : {sales_number : true , order_number : true , description : true ,quantity : true , category_id : true},
             include : {discounts : true , category : true }    
         });
@@ -95,6 +104,10 @@ items_controller.get_categorized_items = async (req , res)=>{
 items_controller.search_item = async (req, res) => {
     try {
         const { search_text , offset ,limit } = req.query;
+        // console.log({offset , limit})
+        offset = parseInt(offset);
+        limit = parseInt(limit);
+
         if (!search_text) {
             return res.status(400).json({ error: "Search text is required" });
         }
@@ -104,11 +117,11 @@ items_controller.search_item = async (req, res) => {
                 OR: [
                     { name: { contains: search_text, mode: "insensitive" } },
                     { description: { contains: search_text, mode: "insensitive" } },
-                    { category: { contains: search_text, mode: "insensitive" } }
+                    { category: {name : { contains: search_text, mode: "insensitive" }}  }
                 ]
             },
-            take: limit??10 , 
-            skip: offset??0, 
+            take : (limit? limit : 10) ,
+            skip : (offset? limit :  0) ,
         });
 
         res.json(items);

@@ -4,16 +4,19 @@ const categories_controller = {}
 const db = new PrismaClient();
 
 categories_controller.get_categories = async (req , res)=>{
-    const categories = [];
-    const { offset ,limit , sort} = req.query;
+    let { offset , limit , sort} = req.query;
+    let categories = [];
+    // console.log({offset , limit})
+    offset = parseInt(offset);
+    limit = parseInt(limit);
 
     try{
         categories = await db.category.findMany({
             orderBy : [( (sort == "most_saled") ? {sales_number : "desc"} : 
                 ( (sort == "most_ordered")? {order_number : "desc"} : 
                 ( (sort == "price")? {price : "asc"} : {id : "asc" })) )], 
-            skip : (offset??  0) ,
-            take : (limit?? 10) ,
+            skip : (offset? offset :  0) ,
+            take : (limit? limit : 10) ,
         })
 
         res.json(categories);
