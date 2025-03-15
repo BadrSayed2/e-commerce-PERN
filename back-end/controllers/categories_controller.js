@@ -26,4 +26,34 @@ categories_controller.get_categories = async (req , res)=>{
     }
 }
 
+categories_controller.add_category = async (req, res)=>{
+    const name = req.body.name;
+    try{
+        await db.category.create({data : {name }});
+        res.json({added : true});
+    }catch(e){
+        res.status(500).json({added : false , error :e });
+    }
+}
+
+categories_controller.update_category = async(req, res)=>{
+    const id = parseInt(req.params.id);
+    const name = req.body.name;
+    try{
+        await db.category.update({where : {id} , data : { name}});
+        res.json({update : true });
+    }catch(e){
+        res.status(500).json({update : false , error : e});
+    }
+}
+
+categories_controller.delete_category = async (req , res) =>{
+    const id = req.params.id;
+    try{
+        await db.category.delete({where : {id}});
+        res.json({deleted : true});
+    }catch(e){
+        res.status(500).json({deleted : false , error : e});
+    }
+}
 export default categories_controller;

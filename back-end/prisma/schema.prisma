@@ -15,7 +15,7 @@ datasource db {
 
 model Item{
   id Int @id @default(autoincrement())
-  name String
+  name String @unique
   description String
   price Int 
   picture_url String
@@ -30,13 +30,14 @@ model Item{
 
 model Category {
   id Int @id @default(autoincrement())
-  name String
+  name String @unique
   items Item[]
 
 }
 
 model Order {
   id Int @id @default(autoincrement())
+  type String
   username String
   location String
   date DateTime @default(now())
@@ -59,3 +60,12 @@ model Discount {
   end_date DateTime
   item Item @relation(fields: [item_id] , references: [id])
 }
+
+
+model User {
+  id String @id @default(uuid())
+  username String
+  password String
+  salt String
+}
+

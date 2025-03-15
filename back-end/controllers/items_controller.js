@@ -131,4 +131,44 @@ items_controller.search_item = async (req, res) => {
     }
 };
 
+items_controller.add_product = async (req,res) => {
+    const user = req.body;
+    try{
+        await db.item.create({
+            data:{name : user.name , description : user.description 
+                , price : parseInt(user.price) , picture_url : user.picture_url 
+                , quantity : parseInt(user.quantity ) , category_id: user.category}
+        })
+        res.json({added : true})
+    }catch(e){
+        res.status(500).json({add: false , error : e});
+    }
+}
+
+items_controller.update_product = async (req,res) => {
+    const user = req.body;
+    const id = parseInt(req.params.id);
+    try{
+        await db.item.update({where : {id },data : {
+            name : user.name , description : user.description 
+                , price : parseInt(user.price) , picture_url : user.picture_url 
+                , quantity : parseInt(user.quantity ) , category_id: user.category
+        }} )
+        res.json({update : true});
+    }catch(e){
+        res.status(500).json({update : false , error : e});
+    }
+}
+
+items_controller.delete_item = async(req,res) =>{
+    const id = parseInt(req.params.id);
+    try{
+        await db.item.delete({where:{id}});
+        res.json({deleted : true});
+    }catch(e){
+        res.status(500).json({deleted : false , error : e});
+    }
+}
+
+
 export default items_controller;
